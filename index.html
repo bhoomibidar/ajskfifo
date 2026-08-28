@@ -328,7 +328,7 @@
 
         <div class="form-group">
             <label>Endorsement Date (ದಿನಾಂಕ)</label>
-            <input type="text" id="docDate" value="28-08-2026" oninput="renderDocument()">
+            <input type="date" id="docDate" value="2026-08-28" oninput="renderDocument()">
         </div>
 
         <div class="form-group">
@@ -342,8 +342,8 @@
         </div>
 
         <div class="form-group">
-            <label>Application / Request Date</label>
-            <input type="text" id="appDate" value="27-08-2026" oninput="renderDocument()">
+            <label>Application / Request Date (ಮನವಿ ದಿನಾಂಕ)</label>
+            <input type="date" id="appDate" value="2026-08-27" oninput="renderDocument()">
         </div>
 
         <div class="form-group">
@@ -357,8 +357,8 @@
         </div>
 
         <div class="form-group">
-            <label>RD Acknowledgement Date</label>
-            <input type="text" id="rdDate" value="17-08-2026" oninput="renderDocument()">
+            <label>RD Acknowledgement Date (ಸ್ವೀಕೃತ ದಿನಾಂಕ)</label>
+            <input type="date" id="rdDate" value="2026-08-17" oninput="renderDocument()">
         </div>
 
         <div class="section-title">Layout & Typography Options</div>
@@ -464,18 +464,28 @@
     </div>
 
     <script>
+        // Helper to format YYYY-MM-DD from input[type="date"] into DD-MM-YYYY
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            const parts = dateString.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+            }
+            return dateString;
+        }
+
         function renderDocument() {
             const getVal = (id) => document.getElementById(id).value;
             const setTxt = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt; };
 
             const crNo = getVal('crNo');
-            const docDate = getVal('docDate');
+            const docDate = formatDate(getVal('docDate'));
             const appDetails = getVal('appDetails');
             const appAddress = getVal('appAddress');
-            const appDate = getVal('appDate');
+            const appDate = formatDate(getVal('appDate'));
             const certType = getVal('certType');
             const rdNumber = getVal('rdNumber');
-            const rdDate = getVal('rdDate');
+            const rdDate = formatDate(getVal('rdDate'));
 
             setTxt('outCrNo', crNo);
             setTxt('outDocDate', docDate);
