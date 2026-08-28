@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="kn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFO Exemption Order Generator - Bidar</title>
+    <style>
+        :root {
+            --primary-color: #0d6efd;
+            --sidebar-bg: #ffffff;
+            --body-bg: #eef2f7;
+            --doc-font-size: 15px;
+            --doc-line-height: 1.8;
+            --doc-padding: 22mm;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--body-bg);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            gap: 25px;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 420px;
+            min-width: 420px;
+            background: var(--sidebar-bg);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+            height: calc(100vh - 40px);
+            overflow-y: auto;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar-header {
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f1f3f5;
+            padding-bottom: 12px;
+        }
+
+        .sidebar-header h2 {
+            margin: 0;
+            font-size: 18px;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            font-weight: 700;
+            color: #6c757d;
+            margin: 18px 0 10px 0;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12.5px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .form-group input, 
+        .form-group textarea, 
+        .form-group select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1.5px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 13.5px;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus, 
+        .form-group textarea:focus, 
+        .form-group select:focus {
+            outline: none;
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 3px rgba(13,110,253,0.12);
+        }
+
+        /* Toolbar Controls */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #198754;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #146c43;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #565e64;
+        }
+
+        /* Preview Workspace */
+        .preview-workspace {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        /* A4 Page Layout */
+        .page-sheet {
+            width: 210mm;
+            min-height: 297mm;
+            background: #ffffff;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            padding: var(--doc-padding);
+            box-sizing: border-box;
+            color: #000000;
+            font-size: var(--doc-font-size);
+            line-height: var(--doc-line-height);
+            font-family: 'Nudi', 'Tunga', 'Kedage', 'Mallige', 'Arial Unicode MS', sans-serif;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        .header-emblem {
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .header-emblem img {
+            width: 80px;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .header-title-block {
+            text-align: center;
+            line-height: 1.35;
+        }
+
+        .title-gov {
+            font-size: 1.35em;
+            font-weight: 700;
+            margin: 2px 0;
+        }
+
+        .title-office {
+            font-size: 1.15em;
+            font-weight: 700;
+            margin: 2px 0;
+        }
+
+        .title-en {
+            font-size: 1.15em;
+            font-weight: 700;
+            margin: 4px 0;
+            letter-spacing: 0.2px;
+        }
+
+        .title-contact {
+            font-size: 0.95em;
+            margin: 3px 0;
+        }
+
+        .divider-line {
+            border-top: 1.5px dashed #000;
+            margin: 12px 0 16px 0;
+        }
+
+        .doc-meta {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            margin-bottom: 22px;
+        }
+
+        .subject-container {
+            margin-bottom: 20px;
+        }
+
+        .sub-row {
+            display: flex;
+            margin-bottom: 8px;
+            text-align: justify;
+        }
+
+        .sub-tag {
+            min-width: 75px;
+            font-weight: 700;
+        }
+
+        .sub-text {
+            flex: 1;
+        }
+
+        .separator-stars {
+            text-align: center;
+            letter-spacing: 6px;
+            font-weight: bold;
+            margin: 14px 0;
+        }
+
+        .doc-paragraph {
+            text-align: justify;
+            text-indent: 40px;
+            margin-bottom: 18px;
+        }
+
+        /* Right Side Signature Area */
+        .signature-block {
+            margin-top: 50px;
+            display: flex;
+            justify-content: flex-end;
+            text-align: center;
+        }
+
+        .signature-inner {
+            min-width: 220px;
+            line-height: 1.5;
+            font-weight: 700;
+        }
+
+        .sig-space {
+            height: 45px;
+        }
+
+        .bold {
+            font-weight: 700;
+        }
+
+        .editable-active {
+            outline: 2px dashed #0d6efd !important;
+            background-color: rgba(13, 110, 253, 0.03);
+        }
+
+        /* Print Settings */
+        @media print {
+            body {
+                background: none;
+                padding: 0;
+                margin: 0;
+            }
+            .sidebar {
+                display: none !important;
+            }
+            .preview-workspace {
+                width: 100%;
+                margin: 0;
+            }
+            .page-sheet {
+                box-shadow: none;
+                width: 100%;
+                min-height: 100%;
+                padding: var(--doc-padding) !important;
+            }
+            @page {
+                size: A4 portrait;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>⚙️ Letter Generator & Controls</h2>
+        </div>
+
+        <div class="section-title">Form Data</div>
+
+        <div class="form-group">
+            <label>CR Number (ಸಿಆರ್ ಸಂಖ್ಯೆ)</label>
+            <input type="text" id="crNo" value="2026-27" oninput="renderDocument()">
+        </div>
+
+        <div class="form-group">
+            <label>Endorsement Date (ದಿನಾಂಕ)</label>
+            <input type="text" id="docDate" value="28-08-2026" oninput="renderDocument()">
+        </div>
+
+        <div class="form-group">
+            <label>Applicant Full Name & Relation</label>
+            <input type="text" id="appDetails" value="ಕುಮಾರಿ ಅಕ್ಷತಾ ಭೋಸ್ಲೆ D/o ಲಕ್ಷುಮನ್ ಭೋಸ್ಲೆ" oninput="renderDocument()">
+        </div>
+
+        <div class="form-group">
+            <label>Address (ವಿಳಾಸ)</label>
+            <textarea id="appAddress" rows="2" oninput="renderDocument()">15-4-71 ರತ್ನಮ್ಮ ನಿವಾಸ ಗಣೇಶ್ ನಗರ, ಬೀದರ್</textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Application / Request Date</label>
+            <input type="text" id="appDate" value="27-08-2026" oninput="renderDocument()">
+        </div>
+
+        <div class="form-group">
+            <label>Certificate Type (ಪ್ರಮಾಣ ಪತ್ರದ ವಿಧ)</label>
+            <input type="text" id="certType" value="ಜಾತಿ ಪ್ರಮಾಣ ಪತ್ರ" oninput="renderDocument()">
+        </div>
+
+        <div class="form-group">
+            <label>RD Number (ಸ್ವೀಕೃತ ಸಂಖ್ಯೆ)</label>
+            <input type="text" id="rdNumber" value="RD1218138103573" oninput="renderDocument()">
+        </div>
+
+        <div class="form-group">
+            <label>RD Acknowledgement Date</label>
+            <input type="text" id="rdDate" value="17-08-2026" oninput="renderDocument()">
+        </div>
+
+        <div class="section-title">Layout & Typography Options</div>
+        <div class="controls-grid">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Font Size</label>
+                <select id="fontSizeSelect" onchange="applyFormatting()">
+                    <option value="13.5px">13.5 px (Compact)</option>
+                    <option value="14.5px">14.5 px (Normal)</option>
+                    <option value="15px" selected>15 px (Standard)</option>
+                    <option value="16px">16 px (Large)</option>
+                    <option value="17px">17 px (Extra Large)</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Line Spacing</label>
+                <select id="lineHeightSelect" onchange="applyFormatting()">
+                    <option value="1.5">1.5 (Tight)</option>
+                    <option value="1.7">1.7 (Medium)</option>
+                    <option value="1.8" selected>1.8 (Standard)</option>
+                    <option value="2.0">2.0 (Spacious)</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Font Family</label>
+                <select id="fontFamilySelect" onchange="applyFormatting()">
+                    <option value="'Nudi', 'Tunga', 'Kedage', sans-serif">Tunga / Nudi</option>
+                    <option value="'Mallige', sans-serif">Mallige</option>
+                    <option value="'Segoe UI', sans-serif">Segoe UI Clean</option>
+                    <option value="'Arial Unicode MS', sans-serif">Arial Unicode</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Page Margins</label>
+                <select id="paddingSelect" onchange="applyFormatting()">
+                    <option value="15mm">Narrow (15mm)</option>
+                    <option value="22mm" selected>Normal (22mm)</option>
+                    <option value="28mm">Wide (28mm)</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="btn btn-secondary" id="editToggleBtn" onclick="toggleDirectEdit()">✏️ Direct Edit</button>
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+        </div>
+    </div>
+
+    <div class="preview-workspace">
+        <div class="page-sheet" id="letterSheet">
+            
+            <div class="header-emblem">
+                <img src="C:/Users/Bhoomi/Downloads/goklogo.png" onerror="this.onerror=null; this.src='goklogo.png';" alt="State Emblem">
+            </div>
+
+            <div class="header-title-block">
+                <div class="title-gov">ಕರ್ನಾಟಕ ಸರ್ಕಾರ</div>
+                <div class="title-office">ಜಿಲ್ಲಾಧಿಕಾರಿಗಳ ಕಾರ್ಯಾಲಯ ಬೀದರ ಜಿಲ್ಲೆ , ಬೀದರ್</div>
+                <div class="title-en">Office of the Deputy Commissioner, Bidar District, Bidar-585401, Karnataka</div>
+                <div class="title-contact">Phone: 08482-225409 Fax: 08482-225262 &nbsp;&nbsp;&nbsp;&nbsp; Email: <u>deo.bidar@gmail.com</u></div>
+            </div>
+
+            <div class="divider-line"></div>
+
+            <div class="doc-meta">
+                <div>ಕ್ರ.ಸಂ.ಇ/ಎಜೆಎಸ್‌ಕೆ/ /ಸಿಆರ್- <span id="outCrNo" class="bold">2026-27</span></div>
+                <div>ದಿನಾಂಕ: <span id="outDocDate" class="bold">28-08-2026</span></div>
+            </div>
+
+            <div class="subject-container">
+                <div class="sub-row">
+                    <div class="sub-tag">ವಿಷಯ:</div>
+                    <div class="sub-text">ಅಟಲ್ ಜೀ ಜನಸ್ನೇಹಿ ಕೇಂದ್ರದಲ್ಲಿ ಉದ್ಯೋಗಾವಕಾಶಕ್ಕಾಗಿ FIFO Exemption ನೀಡುವ ಕುರಿತು.</div>
+                </div>
+                <div class="sub-row">
+                    <div class="sub-tag">ಉಲ್ಲೇಖ:</div>
+                    <div class="sub-text"><span id="outAppDetails">ಕುಮಾರಿ ಅಕ್ಷತಾ ಭೋಸ್ಲೆ D/o ಲಕ್ಷುಮನ್ ಭೋಸ್ಲೆ</span> <span id="outAppAddress">15-4-71 ರತ್ನಮ್ಮ ನಿವಾಸ ಗಣೇಶ್ ನಗರ, ಬೀದರ್</span> ಇವರ ಅರ್ಜಿದಾರರ ಮನವಿ ದಿನಾಂಕ: <span id="outAppDate">27-08-2026</span>.</div>
+                </div>
+            </div>
+
+            <div class="separator-stars">*******</div>
+
+            <div class="doc-paragraph">
+                ಮೇಲ್ಕಂಡ ವಿಷಯಕ್ಕೆ ಸಂಬಂಧಿಸಿದಂತೆ <span id="outBodyAppDetails">ಕುಮಾರಿ ಅಕ್ಷತಾ ಭೋಸ್ಲೆ D/o ಲಕ್ಷುಮನ್ ಭೋಸ್ಲೆ</span> <span id="outBodyAddress">15-4-71 ರತ್ನಮ್ಮ ನಿವಾಸ ಗಣೇಶ್ ನಗರ, ಬೀದರ್</span> ಇವರು ಅರ್ಜಿದಾರರು ದಿನಾಂಕ: <span id="outBodyAppDate">27-08-2026</span> ರಂದು ಅರ್ಜಿಯ ದೃಢೀಕರಣ ಪತ್ರವನ್ನು ಕೋರಿ ಈ ಕಚೇರಿಗೆ ಅರ್ಜಿ ಸಲ್ಲಿಸಿದ್ದು, ಸರ್ಕಾರಿ ಹುದ್ದೆಯ ಸಲುವಾಗಿ ಸದರಿಯವರಿಗೆ <span id="outBodyCert1">ಜಾತಿ ಪ್ರಮಾಣ ಪತ್ರ</span> ಪಡೆಯಲು ತುರ್ತಾಗಿ ಪಡೆಯಲು ಇವರು <span id="outBodyCert2">ಜಾತಿ ಪ್ರಮಾಣ ಪತ್ರ</span> ದೃಢೀಕರಣಕ್ಕೆ ಅರ್ಜಿಯ ಸ್ವೀಕೃತ ಸಂಖ್ಯೆ <span class="bold" id="outRd1">RD1218138103573</span> ದಿನಾಂಕ: <span id="outBodyAppDate2">27-08-2026</span> ಈ <span id="outBodyCert3">ಜಾತಿ ಪ್ರಮಾಣ ಪತ್ರ</span> ದೃಢೀಕರಣ ಪತ್ರವನ್ನು out of queue ಆಗಿ ನೀಡಲು ಕೋರಿರುತ್ತಾರೆ.
+            </div>
+
+            <div class="doc-paragraph">
+                ಈ ಅನುಮತಿಯು FIFO ದಿಂದ ವಿನಾಯಿತಿ ಮಾತ್ರವಾಗಿದೆ. ಅರ್ಜಿದಾರರ ಅರ್ಜಿಯ ಕುರಿತು ನಿಯಮಾನುಸಾರ ಪರಿಶೀಲಿಸಿ ಕ್ರಮ ವಹಿಸುವುದು ತಹಶೀಲ್ದಾರರ ಜವಾಬ್ದಾರಿಯಾಗಿರುತ್ತದೆ. ಪ್ರಯುಕ್ತ ಅರ್ಜಿದಾರರ ಮನವಿಯಂತೆ ಹಾಗೂ ಉಲ್ಲೇಖ(1) ರ ಸುತ್ತೋಲೆಯಲ್ಲಿ ಉದ್ಯೋಗ/ ಶಿಕ್ಷಣ ಸಂಬಂಧಿತ ತುರ್ತು ಅಗತ್ಯ ಪ್ರಕರಣಗಳಡಿ (Employment/ Education urgency cases) FIFO ಇವರ <span id="outBodyCert4">ಜಾತಿ ಪ್ರಮಾಣ ಪತ್ರ</span> ದೃಢೀಕರಣಕ್ಕೆ ಅರ್ಜಿಯ ಸ್ವೀಕೃತ ಸಂಖ್ಯೆ <span class="bold" id="outRd2">RD1218138103573</span> ದಿನಾಂಕ: <span id="outRdDate">17-08-2026</span> ನೀಡಲಾಗಿದೆ. FIFO System ನಿಂದ ವಿನಾಯಿತಿ ನೀಡಲಾಗಿದೆ.
+            </div>
+
+            <div class="signature-block">
+                <div class="signature-inner">
+                    <div class="sig-space"></div>
+                    <div>ಅಪರ ಜಿಲ್ಲಾಧಿಕಾರಿ</div>
+                    <div>ಬೀದರ ಜಿಲ್ಲೆ, ಬೀದರ್</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function renderDocument() {
+            const getVal = (id) => document.getElementById(id).value;
+            const setTxt = (id, txt) => { const el = document.getElementById(id); if (el) el.innerText = txt; };
+
+            const crNo = getVal('crNo');
+            const docDate = getVal('docDate');
+            const appDetails = getVal('appDetails');
+            const appAddress = getVal('appAddress');
+            const appDate = getVal('appDate');
+            const certType = getVal('certType');
+            const rdNumber = getVal('rdNumber');
+            const rdDate = getVal('rdDate');
+
+            setTxt('outCrNo', crNo);
+            setTxt('outDocDate', docDate);
+            
+            setTxt('outAppDetails', appDetails);
+            setTxt('outAppAddress', appAddress);
+            setTxt('outAppDate', appDate);
+            
+            setTxt('outBodyAppDetails', appDetails);
+            setTxt('outBodyAddress', appAddress);
+            setTxt('outBodyAppDate', appDate);
+            setTxt('outBodyAppDate2', appDate);
+
+            setTxt('outBodyCert1', certType);
+            setTxt('outBodyCert2', certType);
+            setTxt('outBodyCert3', certType);
+            setTxt('outBodyCert4', certType);
+
+            setTxt('outRd1', rdNumber);
+            setTxt('outRd2', rdNumber);
+            setTxt('outRdDate', rdDate);
+        }
+
+        function applyFormatting() {
+            const sheet = document.getElementById('letterSheet');
+            sheet.style.fontSize = document.getElementById('fontSizeSelect').value;
+            sheet.style.lineHeight = document.getElementById('lineHeightSelect').value;
+            sheet.style.fontFamily = document.getElementById('fontFamilySelect').value;
+            sheet.style.setProperty('--doc-padding', document.getElementById('paddingSelect').value);
+        }
+
+        let isEditable = false;
+        function toggleDirectEdit() {
+            const sheet = document.getElementById('letterSheet');
+            const btn = document.getElementById('editToggleBtn');
+            isEditable = !isEditable;
+            
+            sheet.contentEditable = isEditable;
+            if (isEditable) {
+                sheet.classList.add('editable-active');
+                btn.innerText = '💾 Lock Sheet';
+                btn.style.backgroundColor = '#d63384';
+            } else {
+                sheet.classList.remove('editable-active');
+                btn.innerText = '✏️ Direct Edit';
+                btn.style.backgroundColor = '#6c757d';
+            }
+        }
+
+        window.onload = renderDocument;
+    </script>
+</body>
+</html>
